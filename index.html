@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MC服务器导航</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    background: #171717;
+    color: #e2e2e2;
+    font-family: "Microsoft Yahei",sans-serif;
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+}
+/* 左侧广告栏 */
+.left-ad {
+    width: 180px;
+    background: #202020;
+    border-radius: 6px;
+    padding:10px;
+}
+/* 中间主区域 */
+.main-box {
+    flex:1;
+    background: #202020;
+    border-radius:6px;
+    padding:14px;
+}
+/* 右侧广告栏 */
+.right-ad {
+    width:180px;
+    background:#202020;
+    border-radius:6px;
+    padding:10px;
+}
+/* 底部广告（单独放最下面，单独一行） */
+.bottom-ad {
+    position: fixed;
+    left:14px;
+    right:14px;
+    bottom:14px;
+    background:#202020;
+    border-radius:6px;
+    padding:10px;
+}
+.ad-title{
+    color:#ffcc44;
+    font-size:15px;
+    margin-bottom:8px;
+    padding-bottom:4px;
+    border-bottom:1px solid #333;
+}
+.ad-item{
+    font-size:13px;
+    padding:5px 4px;
+}
+.ad-item a{
+    color:#88ddff;
+    text-decoration:none;
+}
+.ad-item a:hover{
+    color:#00eeff;
+}
+.server-item{
+    padding:10px;
+    border-bottom:1px solid #303030;
+}
+.server-name{
+    color:#7cf;
+    font-size:16px;
+    font-weight:bold;
+}
+.server-info{
+    font-size:13px;
+    color:#bbbbbb;
+    margin:4px 0;
+}
+.copy-btn{
+    display:inline-block;
+    padding:2px 8px;
+    background:#007799;
+    border-radius:3px;
+    color:#fff;
+    font-size:12px;
+    cursor:pointer;
+}
+.copy-btn:hover{
+    background:#0099bb;
+}
+/* 给底部广告横向排列 */
+.bottom-wrap{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+}
+.bottom-wrap .ad-item{
+    width:calc(10% - 6px);
+}
+/* 防止内容被底部广告遮挡 */
+.main-box{
+    margin-bottom:80px;
+}
+</style>
+</head>
+<body>
+<!-- 左边广告 10条 -->
+<div class="left-ad">
+    <div class="ad-title">📢 推荐服务器</div>
+    <div class="ad-item"><a href="#">幻域养老服 |1.20.1互通</a></div>
+    <div class="ad-item"><a href="#">星落SMP |1.8-1.21原版</a></div>
+    <div class="ad-item"><a href="#">FairyMC |1.21生电服</a></div>
+    <div class="ad-item"><a href="#">CatCraft |长期不重置</a></div>
+    <div class="ad-item"><a href="#">林间小镇 |安静养老</a></div>
+    <div class="ad-item"><a href="#">云屿生存 |互通服</a></div>
+    <div class="ad-item"><a href="#">浅屿方块 |休闲建造</a></div>
+    <div class="ad-item"><a href="#">青禾SMP |新人友好</a></div>
+    <div class="ad-item"><a href="#">星茉生存服 |低延迟</a></div>
+    <div class="ad-item"><a href="#">间歇泉测试服</a></div>
+</div>
+
+<!-- 中间主服务器列表（和原站风格一致） -->
+<div class="main-box">
+    <div class="server-item">
+        <div class="server-name">幻域（Java/基岩互通 Purpur+间歇泉）</div>
+        <div class="server-info">版本：1.20.1｜纯原版生存，领地保护，免登录直接进，修复基岩皮肤，长期稳定养老</div>
+        <div class="server-info">IP：shturl.cc/qhE8PbNhPFGa <span class="copy-btn" data-ip="shturl.cc/qhE8PbNhPFGa">复制IP</span></div>
+    </div>
+    <div class="server-item">
+        <div class="server-name">星落SMP（Java/基岩互通）</div>
+        <div class="server-info">版本：1.8–1.21｜原版生存，领地插件，新人有人带，国内低延迟</div>
+        <div class="server-info">IP：xinluo.vemc.cc <span class="copy-btn" data-ip="xinluo.vemc.cc">复制IP</span></div>
+    </div>
+    <div class="server-item">
+        <div class="server-name">FairyMC</div>
+        <div class="server-info">版本：1.21.x｜原版生存，红石生电，商店经济，氛围平和无内卷</div>
+        <div class="server-info">IP：fairymc.cn <span class="copy-btn" data-ip="fairymc.cn">复制IP</span></div>
+    </div>
+    <div class="server-item">
+        <div class="server-name">CatCraft</div>
+        <div class="server-info">长期不重置地图，禁止随意破坏建筑，适合安静建房探险</div>
+        <div class="server-info">IP：play.catcraft.net <span class="copy-btn" data-ip="play.catcraft.net">复制IP</span></div>
+    </div>
+    <div class="server-item">
+        <div class="server-name">2B2T</div>
+        <div class="server-info">无规则原始服务器，无保护，自由生存，已移除人脸验证</div>
+        <div class="server-info">IP：2b2t.org <span class="copy-btn" data-ip="2b2t.org">复制IP</span></div>
+    </div>
+</div>
+
+<!-- 右边广告10条 -->
+<div class="right-ad">
+    <div class="ad-title">🔥 热门服务器</div>
+    <div class="ad-item"><a href="#">晚风建造服 |建筑师专属</a></div>
+    <div class="ad-item"><a href="#">屿风SMP |慢节奏养老</a></div>
+    <div class="ad-item"><a href="#">荒境原版 |无插件纯净</a></div>
+    <div class="ad-item"><a href="#">橘猫方块 |小游戏+生存</a></div>
+    <div class="ad-item"><a href="#">雾屿生存 |基岩专属</a></div>
+    <div class="ad-item"><a href="#">拾光小镇 |社区建造</a></div>
+    <div class="ad-item"><a href="#">墨痕SMP |长期存档</a></div>
+    <div class="ad-item"><a href="#">星环生存 |红石爱好者</a></div>
+    <div class="ad-item"><a href="#">禾风原版服 |国内低延迟</a></div>
+    <div class="ad-item"><a href="#">幻梦互通服 |Java基岩</a></div>
+</div>
+
+<!-- 底部广告10条 -->
+<div class="bottom-ad">
+    <div class="ad-title">🎯 更多精选服务器</div>
+    <div class="bottom-wrap">
+        <div class="ad-item"><a href="#">暮色森林整合服</a></div>
+        <div class="ad-item"><a href="#">工业科技生存服</a></div>
+        <div class="ad-item"><a href="#">空岛养老服</a></div>
+        <div class="ad-item"><a href="#">生电研究服</a></div>
+        <div class="ad-item"><a href="#">RPG冒险服</a></div>
+        <div class="ad-item"><a href="#">海岛休闲服</a></div>
+        <div class="ad-item"><a href="#">复古1.12原版</a></div>
+        <div class="ad-item"><a href="#">创造建筑服</a></div>
+        <div class="ad-item"><a href="#">纯净超难生存</a></div>
+        <div class="ad-item"><a href="#">互通测试体验服</a></div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.copy-btn').forEach(btn=>{
+    btn.onclick = async function(){
+        let ip = this.getAttribute('data-ip');
+        try{
+            await navigator.clipboard.writeText(ip);
+            alert("IP复制成功！");
+        }catch(e){
+            prompt("手动复制IP：",ip);
+        }
+    }
+})
+</script>
+</body>
+  </html>
