@@ -2,201 +2,607 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>MC服务器导航</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>幻域官网 | 海外专属节点</title>
+
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ========================================================= */
+/* 🎨 全局高级深色主题 & 动画 */
+/* ========================================================= */
+:root {
+  --bg: #0a0a0a; --card-bg: #141414; --border: #2a2a2a; --text: #ededed; 
+  --text-muted: #a1a1aa; --primary: #ff7ac6; --secondary: #a78bfa; --accent: #7dd3fc; --success: #4ade80; --danger: #ef4444;
 }
-body {
-    background: #171717;
-    color: #e2e2e2;
-    font-family: "Microsoft Yahei",sans-serif;
-    display: flex;
-    gap: 12px;
-    padding: 14px;
-}
-/* 左侧广告栏 */
-.left-ad {
-    width: 180px;
-    background: #202020;
-    border-radius: 6px;
-    padding:10px;
-}
-/* 中间主区域 */
-.main-box {
-    flex:1;
-    background: #202020;
-    border-radius:6px;
-    padding:14px;
-}
-/* 右侧广告栏 */
-.right-ad {
-    width:180px;
-    background:#202020;
-    border-radius:6px;
-    padding:10px;
-}
-/* 底部广告（单独放最下面，单独一行） */
-.bottom-ad {
-    position: fixed;
-    left:14px;
-    right:14px;
-    bottom:14px;
-    background:#202020;
-    border-radius:6px;
-    padding:10px;
-}
-.ad-title{
-    color:#ffcc44;
-    font-size:15px;
-    margin-bottom:8px;
-    padding-bottom:4px;
-    border-bottom:1px solid #333;
-}
-.ad-item{
-    font-size:13px;
-    padding:5px 4px;
-}
-.ad-item a{
-    color:#88ddff;
-    text-decoration:none;
-}
-.ad-item a:hover{
-    color:#00eeff;
-}
-.server-item{
-    padding:10px;
-    border-bottom:1px solid #303030;
-}
-.server-name{
-    color:#7cf;
-    font-size:16px;
-    font-weight:bold;
-}
-.server-info{
-    font-size:13px;
-    color:#bbbbbb;
-    margin:4px 0;
-}
-.copy-btn{
-    display:inline-block;
-    padding:2px 8px;
-    background:#007799;
-    border-radius:3px;
-    color:#fff;
-    font-size:12px;
-    cursor:pointer;
-}
-.copy-btn:hover{
-    background:#0099bb;
-}
-/* 给底部广告横向排列 */
-.bottom-wrap{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-}
-.bottom-wrap .ad-item{
-    width:calc(10% - 6px);
-}
-/* 防止内容被底部广告遮挡 */
-.main-box{
-    margin-bottom:80px;
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { background-color: var(--bg); color: var(--text); line-height: 1.5; overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 广告检测隐形元素 */
+#ad-bait { position: absolute; width: 1px; height: 1px; top: -100px; left: -100px; opacity: 0.01; pointer-events: none; }
+
+/* 音乐播放器悬浮球 */
+#music-player { position: fixed; bottom: 30px; left: 30px; z-index: 999999; width: 50px; height: 50px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; transition: 0.3s; }
+#music-player:hover { border-color: var(--primary); transform: scale(1.05); }
+#music-player.playing { animation: spin 3s linear infinite; color: var(--success); border-color: var(--success); }
+
+#main-content { display: none; min-height: 100vh; }
+
+#loading-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted); font-size: 14px; }
+.spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
+
+/* ========================================================= */
+/* 🛡️ 安全验证页面 */
+/* ========================================================= */
+#block-panel { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.95); z-index: 99999; flex-direction: column; justify-content: center; align-items: center; animation: fadeIn 0.3s ease; }
+#block-panel .box { border: 1px solid var(--border); padding: 40px 30px; border-radius: 16px; max-width: 90%; width: 420px; background: var(--card-bg); text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;}
+#block-panel .box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent)); }
+#block-panel .icon-shield { font-size: 48px; margin-bottom: 16px; display: inline-block; filter: drop-shadow(0 0 10px rgba(167,139,250,0.5)); }
+#block-panel h1 { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+#block-panel p { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+#block-panel .btn-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+#block-panel .nav-btn { display: block; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid var(--border); background: #1a1a1a; transition: 0.2s; }
+#block-panel .nav-btn:hover { background: #2a2a2a; border-color: #444; }
+#block-panel .btn-main { color: var(--primary); border-color: rgba(255,122,198,0.3); }
+.divider { display: flex; align-items: center; text-align: center; color: #52525b; font-size: 12px; margin: 20px 0; }
+.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+.divider::before { margin-right: 10px; } .divider::after { margin-left: 10px; }
+.start-verify-btn { width: 100%; padding: 14px; border-radius: 8px; font-size: 14px; font-weight: 600; background: var(--text); color: #000; border: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
+.start-verify-btn:hover { background: #d4d4d8; transform: scale(0.98); }
+
+/* 验证弹窗 */
+#captcha-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 100000; justify-content: center; align-items: center; backdrop-filter: blur(10px); animation: fadeIn 0.2s ease; }
+.captcha-box { background: #1e1e1e; border: 1px solid #333; border-radius: 12px; width: 340px; padding: 0; box-shadow: 0 20px 40px rgba(0,0,0,0.6); text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; color: #fff; }
+.captcha-header { padding: 16px 20px; font-size: 16px; font-weight: 600; text-align: left; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 8px; background: #252525; }
+.puzzle-container { position: relative; width: 100%; height: 180px; overflow: hidden; background-color: #111; }
+.puzzle-bg-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.puzzle-slice { position: absolute; width: 50px; height: 50px; top: 50px; left: 0; border: 2px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.8); z-index: 2; overflow: hidden; }
+.puzzle-slice img { position: absolute; height: 180px; width: 340px; object-fit: cover; }
+.puzzle-hole { position: absolute; width: 50px; height: 50px; top: 50px; background: rgba(0,0,0,0.6); border: 1px dashed #999; border-radius: 4px; z-index: 1; }
+.slider-wrap { padding: 20px; background: #252525; position: relative; }
+.slider-bar { width: 100%; height: 40px; background: #333; border-radius: 20px; position: relative; overflow: hidden; border: 1px solid #444; }
+.slider-fill { position: absolute; left: 0; top: 0; height: 100%; width: 40px; background: rgba(74,222,128,0.3); }
+.slider-btn { position: absolute; left: 0; top: 0; width: 40px; height: 100%; background: #fff; border-radius: 20px; display: flex; justify-content: center; align-items: center; cursor: grab; color: #000; font-size: 18px; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+.slider-text { position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; color: #888; font-size: 13px; pointer-events: none; }
+.grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 20px; background: #252525; }
+.grid-item { position: relative; padding-top: 100%; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: 0.2s; background: #111; }
+.grid-item img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.grid-item.selected { border-color: var(--success); transform: scale(0.95); }
+.grid-item.selected::after { content: '✓'; position: absolute; top: 5px; right: 5px; background: var(--success); color: #000; width: 20px; height: 20px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 12px; }
+.grid-submit { width: calc(100% - 40px); margin: 0 20px 20px; padding: 12px; background: var(--primary); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; opacity: 0.5; transition: 0.2s; }
+.grid-submit.active { opacity: 1; }
+
+/* 多语言切换 */
+#lang-switcher { position: fixed; bottom: 30px; right: 30px; z-index: 999999; }
+.lang-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; transition: 0.3s; }
+.lang-menu { position: absolute; bottom: 60px; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: none; flex-direction: column; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: 140px; }
+.lang-menu.show { display: flex; animation: popIn 0.2s ease; }
+.lang-menu button { background: none; border: none; color: var(--text); padding: 8px 12px; text-align: left; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; }
+.lang-menu button:hover { background: rgba(255,255,255,0.1); color: var(--primary); }
+
+.top-ad { display: none; width: 100%; height: 60px; background: #111; border-bottom: 1px solid var(--border); justify-content: center; align-items: center; color: var(--text-muted); font-size: 12px; cursor: pointer; transition: 0.2s; }
+.nav { position: fixed; top: 60px; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 12px 5%; background: rgba(10,10,10,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+.nav-brand { font-size: 18px; font-weight: 700; color: var(--text); }
+.nav-links { display: flex; gap: 24px; }
+.nav-links a { font-size: 14px; color: var(--text-muted); }
+.layout-wrapper { display: flex; justify-content: center; max-width: 1400px; margin: 0 auto; padding: 140px 10px 40px; gap: 12px; }
+.main-column { flex: 1; max-width: 900px; min-width: 0; }
+.side-column { width: 160px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+.side-ad { display: block; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: 0.3s; cursor: pointer; }
+.side-ad:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 10px 25px rgba(255,122,198,0.15); }
+.side-ad img { width: 100%; height: 100px; object-fit: cover; display: block; border-bottom: 1px solid var(--border); }
+.side-ad .ad-content { padding: 12px; text-align: left; }
+.side-ad .ad-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.side-ad .ad-link { font-size: 12px; color: var(--accent); }
+.bottom-ad { display: flex; margin-top: 40px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: 0.3s; cursor: pointer; }
+.bottom-ad:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 10px 25px rgba(255,122,198,0.15); }
+.bottom-ad .ad-image { width: 180px; height: 100px; object-fit: cover; flex-shrink: 0; border-right: 1px solid var(--border); }
+.bottom-ad .ad-text { padding: 20px; display: flex; flex-direction: column; justify-content: center; text-align: left;}
+.bottom-ad .ad-text h4 { font-size: 16px; color: var(--text); margin-bottom: 4px; }
+.bottom-ad .ad-text p { font-size: 13px; color: var(--text-muted); }
+.news-list { display: flex; flex-direction: column; gap: 10px; }
+.news-item { background: var(--card-bg); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; cursor: pointer;}
+.news-item:hover { border-color: #52525b; transform: translateX(4px); }
+.news-item-left { display: flex; align-items: center; gap: 12px; }
+.news-tag { font-size: 10px; background: rgba(255,122,198,0.15); color: var(--primary); padding: 2px 6px; border-radius: 4px; }
+.news-title { font-size: 13px; color: var(--text); }
+.news-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.section { padding: 40px 0; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+.section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--text); display: flex; align-items: center; gap: 8px;}
+.hero { text-align: center; padding: 20px 0 40px; }
+.hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 800; margin-bottom: 16px; color: #fff; }
+.hero p { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+.ip-grid { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.ip-card { padding: 10px 16px; border-radius: 8px; background: var(--card-bg); border: 1px solid var(--border); font-size: 13px; }
+.ip-card b { color: var(--primary); font-family: monospace; font-size: 14px; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.card h4 { font-size: 14px; color: var(--text); margin-bottom: 8px; font-weight: 600; }
+.card p { font-size: 12px; color: var(--text-muted); }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; background: var(--text); color: #000; border: none; cursor: pointer; transition: 0.2s; }
+.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.status-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.status-header { font-weight: 600; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.status-row { display: flex; justify-content: space-between; align-items: center; }
+.status-label { font-size: 12px; color: var(--text-muted); }
+.status-num { font-size: 18px; font-weight: 700; color: var(--text); font-family: monospace; }
+.status-on { color: var(--success); font-weight: 500; font-size: 12px; }
+
+.sys-info-panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 20px; }
+.sys-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.sys-info-item { display: flex; justify-content: space-between; padding: 10px 14px; background: #09090b; border-radius: 8px; border: 1px solid #222; font-size: 12px; }
+.sys-info-item .key { color: var(--text-muted); }
+.sys-info-item .val { color: var(--primary); font-family: monospace; font-weight: bold; word-break: break-all; text-align: right; max-width: 60%;}
+
+@media (max-width: 768px) { 
+  .nav-links { display: none; } .nav { top: 0; } 
+  .layout-wrapper { padding: 70px 5px 20px; gap: 8px; flex-direction: row; }
+  .side-column { width: 100px; }
+  .side-ad img { height: 70px; }
+  .side-ad .ad-content { padding: 8px; }
+  .side-ad .ad-title { font-size: 11px; text-align: center; }
+  .bottom-ad { flex-direction: column; text-align: center; }
+  .bottom-ad .ad-image { width: 100%; height: 120px; border-right: none; border-bottom: 1px solid var(--border); }
+  .sys-info-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
-<body>
-<!-- 左边广告 10条 -->
-<div class="left-ad">
-    <div class="ad-title">📢 推荐服务器</div>
-    <div class="ad-item"><a href="#">幻域养老服 |1.20.1互通</a></div>
-    <div class="ad-item"><a href="#">星落SMP |1.8-1.21原版</a></div>
-    <div class="ad-item"><a href="#">FairyMC |1.21生电服</a></div>
-    <div class="ad-item"><a href="#">CatCraft |长期不重置</a></div>
-    <div class="ad-item"><a href="#">林间小镇 |安静养老</a></div>
-    <div class="ad-item"><a href="#">云屿生存 |互通服</a></div>
-    <div class="ad-item"><a href="#">浅屿方块 |休闲建造</a></div>
-    <div class="ad-item"><a href="#">青禾SMP |新人友好</a></div>
-    <div class="ad-item"><a href="#">星茉生存服 |低延迟</a></div>
-    <div class="ad-item"><a href="#">间歇泉测试服</a></div>
+<body><!-- 广告拦截检测饵料 -->
+<div id="ad-bait" class="ad-banner ad-slot"></div>
+
+<!-- 背景音乐播放器 -->
+<audio id="bgm" loop>
+  <!-- 使用一个高质量的赛博朋克氛围音乐链接 -->
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=cyberpunk-2099-10701.mp3" type="audio/mpeg">
+
+<div id="music-player" onclick="toggleMusic()">🎵</div>
+
+<!-- 多语言切换悬浮球 -->
+<div id="lang-switcher">
+  <div class="lang-btn" onclick="document.getElementById('langMenu').classList.toggle('show')">🌐</div>
+  <div class="lang-menu" id="langMenu">
+    <button onclick="setLanguage('zh')">🇨🇳 简体中文</button>
+    <button onclick="setLanguage('en')">🇺🇸 English</button>
+    <button onclick="setLanguage('ja')">🇯🇵 日本語</button>
+    <button onclick="setLanguage('ko')">🇰🇷 한국어</button>
+    <button onclick="setLanguage('ru')">🇷🇺 Русский</button>
+  </div>
 </div>
 
-<!-- 中间主服务器列表（和原站风格一致） -->
-<div class="main-box">
-    <div class="server-item">
-        <div class="server-name">幻域（Java/基岩互通 Purpur+间歇泉）</div>
-        <div class="server-info">版本：1.20.1｜纯原版生存，领地保护，免登录直接进，修复基岩皮肤，长期稳定养老</div>
-        <div class="server-info">IP：shturl.cc/qhE8PbNhPFGa <span class="copy-btn" data-ip="shturl.cc/qhE8PbNhPFGa">复制IP</span></div>
-    </div>
-    <div class="server-item">
-        <div class="server-name">星落SMP（Java/基岩互通）</div>
-        <div class="server-info">版本：1.8–1.21｜原版生存，领地插件，新人有人带，国内低延迟</div>
-        <div class="server-info">IP：xinluo.vemc.cc <span class="copy-btn" data-ip="xinluo.vemc.cc">复制IP</span></div>
-    </div>
-    <div class="server-item">
-        <div class="server-name">FairyMC</div>
-        <div class="server-info">版本：1.21.x｜原版生存，红石生电，商店经济，氛围平和无内卷</div>
-        <div class="server-info">IP：fairymc.cn <span class="copy-btn" data-ip="fairymc.cn">复制IP</span></div>
-    </div>
-    <div class="server-item">
-        <div class="server-name">CatCraft</div>
-        <div class="server-info">长期不重置地图，禁止随意破坏建筑，适合安静建房探险</div>
-        <div class="server-info">IP：play.catcraft.net <span class="copy-btn" data-ip="play.catcraft.net">复制IP</span></div>
-    </div>
-    <div class="server-item">
-        <div class="server-name">2B2T</div>
-        <div class="server-info">无规则原始服务器，无保护，自由生存，已移除人脸验证</div>
-        <div class="server-info">IP：2b2t.org <span class="copy-btn" data-ip="2b2t.org">复制IP</span></div>
-    </div>
+<!-- 加载遮罩 -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div data-i18n="loading">正在检查网络环境...</div>
 </div>
 
-<!-- 右边广告10条 -->
-<div class="right-ad">
-    <div class="ad-title">🔥 热门服务器</div>
-    <div class="ad-item"><a href="#">晚风建造服 |建筑师专属</a></div>
-    <div class="ad-item"><a href="#">屿风SMP |慢节奏养老</a></div>
-    <div class="ad-item"><a href="#">荒境原版 |无插件纯净</a></div>
-    <div class="ad-item"><a href="#">橘猫方块 |小游戏+生存</a></div>
-    <div class="ad-item"><a href="#">雾屿生存 |基岩专属</a></div>
-    <div class="ad-item"><a href="#">拾光小镇 |社区建造</a></div>
-    <div class="ad-item"><a href="#">墨痕SMP |长期存档</a></div>
-    <div class="ad-item"><a href="#">星环生存 |红石爱好者</a></div>
-    <div class="ad-item"><a href="#">禾风原版服 |国内低延迟</a></div>
-    <div class="ad-item"><a href="#">幻梦互通服 |Java基岩</a></div>
-</div>
+<!-- 顶部广告 -->
+<a href="https://awa.huanyu.jqu.cc" target="_blank" class="top-ad" id="topAd" data-i18n="topAd">📢 广告：服务器长期招新，点击加入 QQ 群获取福利</a>
 
-<!-- 底部广告10条 -->
-<div class="bottom-ad">
-    <div class="ad-title">🎯 更多精选服务器</div>
-    <div class="bottom-wrap">
-        <div class="ad-item"><a href="#">暮色森林整合服</a></div>
-        <div class="ad-item"><a href="#">工业科技生存服</a></div>
-        <div class="ad-item"><a href="#">空岛养老服</a></div>
-        <div class="ad-item"><a href="#">生电研究服</a></div>
-        <div class="ad-item"><a href="#">RPG冒险服</a></div>
-        <div class="ad-item"><a href="#">海岛休闲服</a></div>
-        <div class="ad-item"><a href="#">复古1.12原版</a></div>
-        <div class="ad-item"><a href="#">创造建筑服</a></div>
-        <div class="ad-item"><a href="#">纯净超难生存</a></div>
-        <div class="ad-item"><a href="#">互通测试体验服</a></div>
+<!-- 安全验证页面 -->
+<div id="block-panel">
+  <div class="box">
+    <div class="icon-shield">🛡️</div>
+    <h1>安全环境检测</h1>
+    <p id="block-desc-text">当前为海外专线节点，为了保障您的访问安全，请选择以下方式进行验证。</p>
+    
+    <div class="btn-group">
+      <a href="https://awa.huanyu.jqu.cc" class="nav-btn btn-main" data-i18n="btnMain">🚀 前往国内主站 (免验证)</a>
+      <a href="https://huanyu.jqu.cc" class="nav-btn" data-i18n="btnSub">🔗 前往国内副站 (免验证)</a>
     </div>
+
+    <div class="divider">或在此完成安全验证</div>
+    
+    <button class="start-verify-btn" onclick="startChallenge()">
+      <span data-i18n="btnVerify">🧩 开始滑动/点选验证</span>
+    </button>
+  </div>
 </div>
 
+<!-- 验证弹窗 -->
+<div id="captcha-overlay">
+  <div class="captcha-box" id="captchaBox"></div>
+</div>
+
+<!-- 正常网页内容 -->
+<div id="main-content">
+  <nav class="nav">
+    <div class="nav-brand" data-i18n="brand">幻域</div>
+    <div class="nav-links">
+      <a href="#status" data-i18n="navStatus">状态</a>
+      <a href="#news" data-i18n="navNews">资讯</a>
+      <a href="#connect" data-i18n="navConnect">连接</a>
+      <a href="#rules" data-i18n="navRules">规则</a>
+    </div>
+  </nav>
+
+  <div class="layout-wrapper">
+    <div class="side-column" id="adLeftCol"></div>
+    
+    <div class="main-column">
+      <header class="hero">
+        <h1 data-i18n="heroTitle">欢迎来到幻域</h1>
+        <p data-i18n="heroDesc">Java & 基岩版互通 · 离线可进 · 纯净体验</p>
+        <div class="ip-grid">
+          <div class="ip-card">☕ <span data-i18n="mainServer">主服</span>: <b>huanyu.fucku.top</b></div>
+          <div class="ip-card">🪨 <span data-i18n="port">端口</span>: <b>36784</b></div>
+        </div>
+      </header>
+
+      <section class="section" id="status">
+        <h2 class="section-title" data-i18n="statusTitle">📊 实时状态</h2>
+        <div class="status-grid">
+          <div class="status-card">
+            <div class="status-header"><span data-i18n="server1">🔮 幻域主服</span></div>
+            <div class="status-row"><span class="status-label" data-i18n="players">在线人数</span><span class="status-num" id="players-huanyu">--</span></div>
+            <div class="status-row"><span class="status-label" data-i18n="statusLabel">运行状态</span><span class="status-on" id="status-huanyu" data-i18n="checking">● 检测中...</span></div>
+          </div>
+          <div class="status-card">
+            <div class="status-header"><span data-i18n="server2">⚔️ HM 服务器</span></div>
+            <div class="status-row"><span class="status-label" data-i18n="players">在线人数</span><span class="status-num" id="players-hm">--</span></div>
+            <div class="status-row"><span class="status-label" data-i18n="statusLabel">运行状态</span><span class="status-on" id="status-hm" data-i18n="checking">● 检测中...</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="news">
+        <h2 class="section-title" data-i18n="newsTitle">📰 最新资讯与推荐</h2>
+        <div class="news-list" id="newsList"></div>
+      </section>
+
+      <a href="#" class="bottom-ad" id="adBottom">
+        <img src="" class="ad-image" alt="Ad">
+        <div class="ad-text">
+          <h4>Loading...</h4>
+          <p>Loading...</p>
+        </div>
+      </a>
+
+      <section class="section" id="device-info">
+        <h2 class="section-title">📱 设备及安全环境信息</h2>
+        <div class="sys-info-panel">
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+            以下信息仅供安全验证参考，完全在您的本地浏览器计算提取，<b>绝不会上传至任何服务器</b>。
+          </p>
+          <div class="sys-info-grid" id="sysInfoGrid"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="side-column" id="adRightCol"></div>
+  </div>
+
+  <footer style="text-align: center; padding: 30px; color: #52525b; font-size: 12px; border-top: 1px solid var(--border);">
+    © 2026 <span data-i18n="brand">幻域</span>官网
+  </footer>
+</div><!-- ⚙️ 核心脚本 -->
 <script>
-document.querySelectorAll('.copy-btn').forEach(btn=>{
-    btn.onclick = async function(){
-        let ip = this.getAttribute('data-ip');
-        try{
-            await navigator.clipboard.writeText(ip);
-            alert("IP复制成功！");
-        }catch(e){
-            prompt("手动复制IP：",ip);
-        }
+// =========================================================
+// 🚫 1. 防 F12 审查元素 & 防右键
+// =========================================================
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault(); // 禁用右键
+  alert('⚠️ 安全提示：为了防止代码被篡改，本站已禁用右键菜单。');
+});
+
+document.addEventListener('keydown', function(e) {
+  // 拦截 F12
+  if (e.key === 'F12' || e.keyCode === 123) {
+    e.preventDefault();
+    alert('⚠️ 安全提示：开发者工具已被禁用。');
+    return false;
+  }
+  // 拦截 Ctrl+Shift+I / J / C
+  if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
+    e.preventDefault();
+    alert('⚠️ 安全提示：开发者工具已被禁用。');
+    return false;
+  }
+  // 拦截 Ctrl+U (查看源代码)
+  if (e.ctrlKey && e.key === 'u') {
+    e.preventDefault();
+    alert('⚠️ 安全提示：查看源代码已被禁用。');
+    return false;
+  }
+});
+
+// 防调试（检测控制台是否被拉开）
+setInterval(function() {
+  const before = new Date();
+  debugger; 
+  const after = new Date();
+  // 如果执行 debugger 花费的时间过长，说明控制台被打开了
+  if (after - before > 100) {
+    // 这里可以做一个强制跳转或清空页面的操作
+    // document.body.innerHTML = "<h1>检测到非法调试，系统已锁定！</h1>";
+  }
+}, 1000);
+
+// =========================================================
+// 🎵 2. 背景音乐控制
+// =========================================================
+let isPlaying = false;
+function toggleMusic() {
+  const bgm = document.getElementById('bgm');
+  const player = document.getElementById('music-player');
+  if (isPlaying) {
+    bgm.pause();
+    player.classList.remove('playing');
+    player.innerHTML = '🎵';
+  } else {
+    bgm.volume = 0.3; // 音量调低一点
+    bgm.play();
+    player.classList.add('playing');
+    player.innerHTML = '🎶';
+  }
+  isPlaying = !isPlaying;
+}
+
+// =========================================================
+// 🕵️ 3. 隐身模式检测 & 🚫 4. 广告拦截检测
+// =========================================================
+var isAdBlocked = false;
+var isIncognito = false;
+
+function checkEnvironment(callback) {
+  // 检测隐身模式 (尝试写入 localStorage，无痕模式通常会报错或表现异常)
+  try {
+    localStorage.setItem('test', 'test');
+    localStorage.removeItem('test');
+  } catch (e) {
+    isIncognito = true;
+  }
+
+  // 检测广告拦截：利用一个 class 名字叫 "ad-slot" 的隐形 div
+  // AdBlock 看到这个名字通常会把它的高度设为 0 或隐藏它
+  setTimeout(() => {
+    const bait = document.getElementById('ad-bait');
+    if (bait.offsetHeight === 0 || bait.clientHeight === 0 || window.getComputedStyle(bait).display === 'none') {
+      isAdBlocked = true;
     }
-})
+
+    if (isIncognito || isAdBlocked) {
+      let msg = "为了保障您的访问安全，请先关闭：<br>";
+      if (isIncognito) msg += "🕶️ 浏览器的“无痕/隐身模式”<br>";
+      if (isAdBlocked) msg += "🚫 广告拦截插件 (AdBlock)<br>";
+      document.getElementById('block-desc-text').innerHTML = `<span style="color:#ef4444;">${msg}</span>`;
+      document.querySelector('.btn-group').style.display = 'none'; // 隐藏跳转按钮
+      document.querySelector('.divider').style.display = 'none';
+      document.querySelectorAll('.start-verify-btn').forEach(btn => btn.style.display = 'none');
+      return;
+    }
+
+    // 环境正常，继续网络检测
+    callback();
+  }, 500);
+}
+
+// =========================================================
+// 🌍 5. 网络检测与放行
+// =========================================================
+var isVerified = false, isBlocked = false;
+var mainContent = document.getElementById('main-content');
+var blockPanel = document.getElementById('block-panel');
+var loadingOverlay = document.getElementById('loading-overlay');
+var topAd = document.getElementById('topAd');
+
+function showContent() {
+  if (isBlocked && !isVerified) return; 
+  loadingOverlay.style.display = 'none'; 
+  mainContent.style.display = 'block';  
+  topAd.style.display = 'flex'; 
+  blockPanel.style.display = 'none';    
+  fetchAllMCStatus();      
+  initAds(); 
+  collectDeviceInfo(); 
+  const lang = localStorage.getItem('site_lang') || 'en';
+  renderNews(lang); 
+}
+
+function showBlock() {
+  if (isVerified) return; 
+  isBlocked = true;
+  loadingOverlay.style.display = 'none'; 
+  mainContent.style.display = 'none';   
+  blockPanel.style.display = 'flex';    
+}
+
+function startNetworkCheck() {
+  var hasPassed = false; 
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://www.google.com/generate_204', true);
+  xhr.timeout = 4000; 
+  xhr.onload = function() { if (xhr.status === 204) { hasPassed = true; showContent(); } };
+  xhr.onerror = xhr.ontimeout = function() { };
+  xhr.send();
+
+  fetch('https://1.1.1.1/cdn-cgi/trace', { cache: "no-store" })
+    .then(res => res.text())
+    .then(text => {
+      if (hasPassed) return;
+      if (text.indexOf('loc=CN') !== -1) showBlock(); 
+      else { hasPassed = true; showContent(); }
+    })
+    .catch(err => { if (!hasPassed) showBlock(); });
+
+  setTimeout(function() { if (!hasPassed && !isBlocked) showBlock(); }, 4500);
+}
+
+// 页面加载后先检测环境，再检测网络
+window.addEventListener('DOMContentLoaded', () => {
+  checkEnvironment(startNetworkCheck);
+});
+
+
+// =========================================================
+// 🧩 6. 严格极验验证逻辑 (带鼠标轨迹检测)
+// =========================================================
+let currentLevel = 1;
+const TOTAL_LEVELS = 20;
+const captchaOverlay = document.getElementById('captcha-overlay');
+const captchaBox = document.getElementById('captchaBox');
+let currentTargetTheme = ""; 
+let currentGridData = [];
+
+const stableImages = [
+  "https://images.unsplash.com/photo-1506744626753-1fa44cf2035b?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1471479917193-f00955256257?auto=format&fit=crop&w=400&q=80"
+];
+
+const imageDatabase = {
+  "汽车": ["https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200&q=60","https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&q=60","https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=200&q=60","https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=200&q=60","https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=200&q=60","https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&q=60"],
+  "水果": ["https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&q=60","https://images.unsplash.com/photo-1560806887-1e4cd0b6fac6?w=200&q=60","https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=200&q=60","https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=200&q=60","https://images.unsplash.com/photo-1587132137056-bfbf0166836e?w=200&q=60","https://images.unsplash.com/photo-1528825871115-3581a5387919?w=200&q=60"],
+  "动物": ["https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=200&q=60","https://images.unsplash.com/photo-1517849845537-4d257902454a?w=200&q=60","https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=200&q=60","https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=200&q=60","https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=200&q=60","https://images.unsplash.com/photo-1472491235688-bdc81a63246e?w=200&q=60"]
+};
+
+function startChallenge() { currentLevel = 1; nextLevel(); }
+
+function nextLevel() {
+  if (currentLevel > TOTAL_LEVELS) {
+    captchaOverlay.style.display = 'none';
+    isVerified = true;
+    showContent();
+    return;
+  }
+  captchaOverlay.style.display = 'flex';
+  renderCaptchaLevel();
+}
+
+function passLevel() { currentLevel++; nextLevel(); }
+
+function renderCaptchaLevel() {
+  let html = `<div class="captcha-header"><span>🛡️ 安全验证 (${currentLevel}/20)</span></div>`;
+  let type = Math.random() > 0.5 ? 1 : 2;
+
+  if (type === 1) {
+    const bgImg = stableImages[Math.floor(Math.random() * stableImages.length)];
+    const targetX = Math.floor(Math.random() * 150) + 100; 
+    html += `
+      <div class="puzzle-container">
+        <img src="${bgImg}" class="puzzle-bg-img">
+        <div class="puzzle-hole" id="puzzle-hole" style="left: ${targetX}px;"></div>
+        <div class="puzzle-slice" id="puzzle-slice" style="left: 0px;">
+          <img src="${bgImg}" style="left: -${targetX}px; top: 0px;">
+        </div>
+      </div>
+      <div class="slider-wrap"><div class="slider-bar"><div class="slider-fill" id="sl-fill"></div><div class="slider-btn" id="sl-btn">→</div><div class="slider-text">拖动滑块完成拼图</div></div></div>`;
+    captchaBox.innerHTML = html;
+    initRealSlider(targetX);
+  }
+  else {
+    const themes = ["汽车", "水果", "动物"];
+    currentTargetTheme = themes[Math.floor(Math.random() * themes.length)];
+    
+    let trueImages = imageDatabase[currentTargetTheme].sort(() => 0.5 - Math.random()).slice(0, 3);
+    let otherThemes = themes.filter(t => t !== currentTargetTheme);
+    let falseTheme = otherThemes[Math.floor(Math.random() * otherThemes.length)];
+    let falseImages = imageDatabase[falseTheme].sort(() => 0.5 - Math.random()).slice(0, 6);
+    
+    currentGridData = [...trueImages, ...falseImages].sort(() => 0.5 - Math.random());
+
+    html += `<div class="captcha-content" style="padding-bottom:0;"><p style="text-align:left; margin-bottom:10px; font-size:13px;">请依次点击图中的 <b>${currentTargetTheme}</b></p></div>
+      <div class="grid-container">${currentGridData.map((src) => `<div class="grid-item" onclick="toggleGrid(this)"><img src="${src}"></div>`).join('')}</div>
+      <button class="grid-submit" id="gridBtn" onclick="verifyGrid()">确认</button>`;
+    captchaBox.innerHTML = html;
+    window.toggleGrid = function(el) { el.classList.toggle('selected'); document.getElementById('gridBtn').classList.toggle('active', document.querySelectorAll('.grid-item.selected').length > 0); };
+  }
+}
+
+// 带有行为分析的滑块
+function initRealSlider(targetX) {
+  const btn = document.getElementById('sl-btn'), fill = document.getElementById('sl-fill'), slice = document.getElementById('puzzle-slice');
+  const bar = btn.parentElement; 
+  let isDragging = false, startX = 0, maxDrag = bar.clientWidth - btn.clientWidth;
+  let moveCount = 0; // 记录移动次数，防脚本瞬移
+
+  btn.addEventListener('mousedown', start); btn.addEventListener('touchstart', start, {passive: false});
+  
+  function start(e) { 
+    isDragging = true; 
+    moveCount = 0;
+    startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX; 
+    document.addEventListener('mousemove', move); 
+    document.addEventListener('touchmove', move, {passive:false}); 
+    document.addEventListener('mouseup', end); 
+    document.addEventListener('touchend', end); 
+  }
+  
+  function move(e) { 
+    if(!isDragging) return; 
+    moveCount++;
+    let x = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX; 
+    let delta = x - startX; 
+    if(delta > maxDrag) delta = maxDrag; 
+    if(delta < 0) delta = 0; 
+    btn.style.left = delta + 'px'; 
+    fill.style.width = (delta + btn.clientWidth) + 'px'; 
+    let puzzleDelta = (delta / maxDrag) * 280; 
+    slice.style.left = puzzleDelta + 'px'; 
+  }
+  
+  function end() { 
+    if(!isDragging) return; 
+    isDragging = false; 
+    document.removeEventListener('mousemove', move); 
+    document.removeEventListener('touchmove', move); 
+    document.removeEventListener('mouseup', end); 
+    document.removeEventListener('touchend', end); 
+    
+    let currentLeft = parseInt(slice.style.left) || 0; 
+    
+    // 行为检测：如果移动次数小于 5 次就直接到底，说明是脚本/机器人
+    if (moveCount < 5 && currentLeft > 100) {
+      alert('检测到非人类操作，请慢一点拖动！');
+      btn.style.left = '0px'; fill.style.width = '40px'; slice.style.left = '0px'; 
+      return;
+    }
+
+    if(Math.abs(currentLeft - targetX) < 5) { 
+      passLevel(); 
+    } else { 
+      alert('拼图位置不对，请重试！'); 
+      btn.style.left = '0px'; fill.style.width = '40px'; slice.style.left = '0px'; 
+    } 
+  }
+}
+
+// 严格比对九宫格
+window.verifyGrid = function() {
+  let selectedEls = document.querySelectorAll('.grid-item.selected');
+  if(selectedEls.length === 0) return;
+
+  let trueImages = imageDatabase[currentTargetTheme];
+  let isValid = true;
+  selectedEls.forEach(el => {
+    let imgSrc = el.querySelector('img').src;
+    if (!trueImages.includes(imgSrc)) {
+      isValid = false;
+    }
+  });
+
+  if (isValid) {
+    passLevel();
+  } else {
+    alert("验证失败，您选错了图片，请重新挑战！");
+    document.querySelectorAll('.grid-item.selected').forEach(el => el.classList.remove('selected'));
+    document.getElementById('gridBtn').classList.remove('active');
+  }
+}
+
+// 其他服务器状态、广告、语言、设备信息等函数
+function fetchAllMCStatus(){}
+function initAds(){}
+function collectDeviceInfo(){}
+function renderNews(){}
+function setLanguage(){}
 </script>
+
 </body>
-  </html>
+</html>
