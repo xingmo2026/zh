@@ -1,104 +1,110 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>huanyu外挂商店</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui, sans-serif}
-body{
-    background:#121212;
-    color:#fff;
-    padding:50px 15px;
-}
-.container{
-    max-width:500px;
-    margin:0 auto;
-}
-.header{
-    text-align:center;
-    margin-bottom:35px;
-}
-.header h1{
-    color:#4ade80;
-    font-size:28px;
-    margin-bottom:10px;
-}
-.header p{
-    color:#aaa;
-}
-.card{
-    background:#1e1e1e;
-    border:1px solid #333;
-    border-radius:12px;
-    padding:30px;
-    text-align:center;
-}
-.card h3{
-    color:#60a5fa;
-    font-size:22px;
-    margin-bottom:12px;
-}
-.card p{
-    color:#b8b8b8;
-    font-size:15px;
-    line-height:1.6;
-    margin-bottom:16px;
-}
-.price{
-    color:#facc15;
-    font-weight:bold;
-    font-size:20px;
-    margin-bottom:20px;
-}
-.buy-btn{
-    width:100%;
-    padding:13px;
-    border:none;
-    border-radius:8px;
-    background:#22c55e;
-    color:white;
-    font-size:17px;
-    cursor:pointer;
-    transition: 0.2s;
-}
-.buy-btn:hover{background:#16a34a;}
-.tip{
-    text-align:center;
-    color:#888;
-    font-size:13px;
-    margin-top:25px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>guess | 购买外挂服务中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gunmu: {
+                            bg: '#0c0c0e',
+                            card: '#17171b',
+                            accent: '#e63946',
+                            text: '#f1f1f1',
+                            muted: '#9999a8'
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .bg-gradient-gunmu {
+                background: linear-gradient(135deg, #e63946, #ff5a66);
+            }
+            .border-glow {
+                box-shadow: 0 0 12px rgba(230, 57, 70, 0.25);
+            }
+            .text-shadow {
+                text-shadow: 0 2px 14px rgba(230, 57, 70, 0.35);
+            }
+        }
+        body {
+            background-color: #0c0c0e;
+        }
+    </style>
 </head>
-<body>
-<div class="container">
-    <div class="header">
-        <h1>MC服务器插件商店</h1>
-        <p>适配Purpur / Spigot / Paper 1.16~1.21</p>
-    </div>
+<body class="font-inter text-gunmu-text bg-gunmu-bg min-h-screen">
 
-    <div class="card">
-        <h3>huanyu外挂插件</h3>
-        <p>飞天框都自动瞄准适合生存养老服</p>
-        <div class="price">¥29.9</div>
-        <button class="buy-btn" onclick="joinQQ()">立即购买</button>
-    </div>
+    <!-- 导航栏 -->
+    <header class="fixed top-0 left-0 w-full z-50 bg-gunmu-bg/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-md bg-gradient-gunmu"></div>
+                <span class="text-xl font-bold tracking-wider">GUNMU</span>
+            </div>
+            <nav class="hidden md:flex items-center gap-8 text-sm text-gunmu-muted">
+                <a href="#home" class="hover:text-white transition-colors">首页</a>
+                <a href="#features" class="hover:text-white transition-colors">功能</a>
+                <a href="#pricing" class="hover:text-white transition-colors">29.9价格</a>
+                <a href="#docs" class="hover:text-white transition-colors">文档</a>
+            </nav>
+            <a href="#pricing" class="px-5 py-2 rounded-md bg-gradient-gunmu font-semibold text-sm hover:opacity-90 transition-all">
+                29.9购买
+            </a>
+        </div>
+    </header>
 
-    <div class="tip">
-        提示：点击购买即可进群获取插件资源<br>
-        仅服务器合法插件，作弊功能
-    </div>
-</div>
+    <!-- Hero 首屏 -->
+    <section id="home" class="pt-36 pb-24 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-14 items-center">
+            <div>
+                <h1 class="text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-tight text-shadow">
+                    GunMu
+                </h1>
+                <p class="mt-6 text-gunmu-muted text-lg max-w-lg">
+                    低调幽灵客户端，专为 Minecraft Java 1.8.9 打造。低特征、模拟人类操作、稳定绕过主流检测。
+                </p>
+                <div class="mt-8 flex flex-wrap gap-4">
+                    <a href="#pricing" class="px-7 py-3 rounded-md bg-gradient-gunmu font-semibold">
+                        立即获取
+                    </a>
+                    <a href="#features" class="px-7 py-3 rounded-md border border-white/10 hover:bg-white/5 transition-colors">
+                        查看功能
+                    </a>
+                </div>
+            </div>
+            <div class="rounded-xl overflow-hidden border border-white/10 border-glow bg-gunmu-card p-2">
+                <div class="w-full aspect-[16/9] rounded-lg bg-[#101014] flex items-center justify-center text-gunmu-muted">
+                    GunMu 截图
+                </div>
+            </div>
+        </div>
+    </section>
 
-<script>
-function joinQQ(){
-    const qqGroupUrl = "tencent://groupwpa/?subcmd=all&groupid=142592996";
-    window.location.href = qqGroupUrl;
-    setTimeout(()=>{
-        alert("唤起QQ失败！请手动搜索QQ群号：142592996");
-    }, 700);
-}
-</script>
-</body>
-</html>
+    <!-- Features 功能 -->
+    <section id="features" class="py-24 px-6 bg-gunmu-card/40">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center">核心特性</h2>
+            <p class="text-center text-gunmu-muted mt-3 mb-14">精心调校的模块，最低可见度</p>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 rounded-xl bg-gunmu-card border border-white/5 hover:border-gunmu-accent/40 transition-all">
+                    <h3 class="font-bold text-lg">Human Aim</h3>
+                    <p class="mt-2 text-gunmu-muted text-sm">模拟人类平滑瞄准，自带抖动、延迟随机化。</p>
+                </div>
+                <div class="p-6 rounded-xl bg-gunmu-card border border-white/5 hover:border-gunmu-accent/40 transition-all">
+                    <h3 class="font-bold text-lg">Ghost Speed</h3>
+                    <p class="mt-2 text-gunmu-muted text-sm">分段式移动加速，避开速度校验检测。</p>
+                </div>
+                <div class="p-6 rounded-xl bg-gunmu-card border border-white/5 hover:border-gunmu-accent/40 tran
