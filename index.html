@@ -120,13 +120,13 @@
             </div>
         </div>
 
-        <!-- 修改了这里的 onclick 事件，调用跳转函数 -->
-        <button class="buy-btn" onclick="goToQQGroup()">立即购买 / 加入QQ群</button>
+        <!-- 修改了按钮文字，提示用户会下载并加群 -->
+        <button class="buy-btn" onclick="downloadAndJoin()">立即下载 / 加入QQ群</button>
     </div>
 </div>
 
 <script>
-    // 切换套餐逻辑（保持原样）
+    // 切换套餐逻辑
     function selectPlan(planType, price, btnElement) {
         const buttons = document.querySelectorAll('.btn-group button');
         buttons.forEach(btn => btn.classList.remove('active'));
@@ -140,27 +140,36 @@
         priceDisplay.innerHTML = `¥ ${price}<span>${suffix}</span>`;
     }
 
-    // 新增：点击购买后跳转 QQ 群的逻辑
-    function goToQQGroup() {
+    // 新增：点击按钮执行下载并跳转 QQ 群
+    function downloadAndJoin() {
         const qqGroupNumber = '142592996';
-        
-        // 检测是否是手机端
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        // 你的 GitHub 下载直链
+        const downloadUrl = 'https://release-assets.githubusercontent.com/github-production-release-asset/1413061039/a0388993-1b8c-4dde-8007-afc3e6c4f0b4?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-11-01T15%3A52%3A31Z&rscd=attachment%3B+filename%3Dnb.jar&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-11-01T14%3A51%3A46Z&ske=2026-11-01T15%3A52%3A31Z&sks=b&skv=2018-11-09&sig=nN7mW2sXsD7CZqn4dYUyi1AjSrTkWCHVtXcV3BXPMWo%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc5MzU0NTAwNywibmJmIjoxNzkzNTQ0NzA3LCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.lc3HJ0dT3Kd2Es6Je82Y444cSznQhyKNzSs7ZDG_YB8&response-content-disposition=attachment%3B%20filename%3Dnb.jar&response-content-type=application%2Foctet-stream';
 
-        if (isMobile) {
-            // 手机端：使用特定的 URL Scheme 尝试直接唤起 QQ App 加群
-            // 注：如果用户没有安装QQ，可能会提示网页无法打开
-            window.location.href = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qqGroupNumber}&card_type=group&source=qrcode`;
-            
-            // 作为备用方案，如果唤起失败，延迟1.5秒后跳转到网页版加群
-            setTimeout(() => {
-                window.location.href = `https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`;
-            }, 1500);
+        // 1. 创建一个隐藏的 a 标签来触发下载
+        const downloadLink = document.createElement('a');
+        downloadLink.href = downloadUrl;
+        // 添加 download 属性提示浏览器直接下载，但由于跨域，主要依赖服务器返回的 attachment 头
+        downloadLink.setAttribute('download', 'nb.jar'); 
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
 
-        } else {
-            // 电脑端：直接跳转到腾讯的加群链接，会打开网页并提示打开 QQ 客户端
-            window.open(`https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`, '_blank');
-        }
+        // 2. 延迟 1 秒后执行 QQ 群跳转（给浏览器一点时间处理下载）
+        setTimeout(() => {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // 手机端跳转逻辑
+                window.location.href = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qqGroupNumber}&card_type=group&source=qrcode`;
+                setTimeout(() => {
+                    window.location.href = `https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`;
+                }, 1500);
+            } else {
+                // 电脑端跳转逻辑
+                window.open(`https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`, '_blank');
+            }
+        }, 1000); 
     }
 </script>
 
