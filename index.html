@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg-color: #0b0e14;
-            --card-bg: rgba(22, 26, 37, 0.85); /* 半透明卡片，透出背景光 */
+            --card-bg: rgba(22, 26, 37, 0.85);
             --primary: #ff4757;
             --text-main: #ffffff;
             --text-sub: #8b92a5;
@@ -19,32 +19,30 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
+        /* 修改了这里：允许垂直滚动 */
         body { 
             background-color: var(--bg-color); 
             color: var(--text-main); 
             display: flex; 
             justify-content: center; 
-            align-items: center; 
+            align-items: flex-start; /* 改为flex-start，防止内容多时居中导致顶部被裁 */
             min-height: 100vh; 
             padding: 20px;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto; /* 允许滚动 */
+            overflow-x: hidden;
         }
 
-        /* ======== 商业化背景特效 ======== */
-        /* 动态流光背景 */
+        /* 背景特效 */
         .bg-gradient {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 15% 50%, rgba(22, 26, 37, 1) 0%, rgba(11, 14, 20, 1) 50%),
                         radial-gradient(circle at 85% 30%, rgba(255, 71, 87, 0.08) 0%, transparent 40%),
                         radial-gradient(circle at 50% 80%, rgba(22, 119, 255, 0.06) 0%, transparent 40%);
             z-index: -2;
         }
-        /* 背景网格 */
         .bg-grid {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: 
                 linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
@@ -54,7 +52,7 @@
             -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.1) 100%);
         }
 
-        /* ======== 卡片容器 ======== */
+        /* 卡片容器 */
         .container {
             background-color: var(--card-bg);
             width: 100%; max-width: 880px;
@@ -65,6 +63,7 @@
             border: 1px solid rgba(255,255,255,0.05);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+            margin: auto 0; /* 上下居中适配 */
         }
 
         /* 左侧商品信息 */
@@ -137,6 +136,7 @@
             border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); text-align: center;
             border: 1px solid rgba(255,255,255,0.1); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             min-height: 250px; display: flex; flex-direction: column; justify-content: center;
+            max-height: 90vh; overflow-y: auto; /* 弹窗内容过多时也可滚动 */
         }
         @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .modal-content h2 { font-size: 24px; margin-bottom: 10px; color: var(--text-main); }
@@ -183,7 +183,8 @@
 
         /* 响应式 */
         @media (max-width: 768px) {
-            .container { flex-direction: column; max-width: 400px; }
+            body { padding: 15px 15px 50px 15px; } /* 底部留点白 */
+            .container { flex-direction: column; max-width: 100%; margin-top: 10px; }
             .product-info { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 30px 20px; }
             .purchase-panel { width: 100%; padding: 30px 20px; }
             .pay-grid { grid-template-columns: 1fr; } 
