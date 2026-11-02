@@ -4,341 +4,372 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>jijia 科技 - 官方外挂发卡网</title>
-    <style>
-        :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --primary: #ff4757;
-            --text-main: #ffffff;
-            --text-sub: #aaaaaa;
-            --alipay: #1677ff;
-            --wechat: #07c160;
-            --qq: #12b7f5;
-            --union: #e60012;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        
-        .container {
-            background-color: var(--card-bg);
-            width: 100%;
-            max-width: 800px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            overflow: hidden;
-            display: flex;
-            flex-direction: row;
-        }
-
-        /* 左侧商品信息 */
-        .product-info {
-            padding: 40px;
-            flex: 1;
-            border-right: 1px solid #333;
-        }
-        .product-info h1 { font-size: 28px; margin-bottom: 10px; }
-        .product-info .version { color: var(--primary); font-size: 14px; margin-bottom: 20px; display: inline-block; background: rgba(255, 71, 87, 0.1); padding: 4px 10px; border-radius: 4px; }
-        .product-info p { color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; }
-        .feature-list { list-style: none; margin-bottom: 20px; }
-        .feature-list li { margin-bottom: 10px; color: var(--text-sub); }
-        .feature-list li::before { content: '✓'; color: #2ed573; margin-right: 10px; font-weight: bold; }
-
-        /* 右侧购买面板 */
-        .purchase-panel {
-            padding: 40px;
-            width: 350px;
-            background-color: #181818;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .price { font-size: 36px; font-weight: bold; color: var(--primary); margin-bottom: 20px; text-align: center; }
-        .price span { font-size: 16px; color: var(--text-sub); font-weight: normal; }
-        
-        .options { margin-bottom: 25px; }
-        .options label { display: block; margin-bottom: 10px; color: var(--text-sub); font-size: 14px; }
-        .btn-group { display: flex; gap: 10px; }
-        .btn-group button {
-            flex: 1;
-            padding: 10px;
-            background: transparent;
-            border: 1px solid #444;
-            color: var(--text-sub);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-group button.active {
-            background: rgba(255, 71, 87, 0.1);
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .buy-btn {
-            width: 100%;
-            padding: 15px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-bottom: 15px;
-        }
-        .buy-btn:hover { background-color: #ff6b81; }
-
-        /* 底部两个快速支付按钮 */
-        .quick-pay-methods {
-            display: flex;
-            gap: 10px;
-        }
-        .quick-pay-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-        .quick-pay-btn:hover { opacity: 0.8; }
-        .quick-alipay { background-color: var(--alipay); }
-        .quick-wechat { background-color: var(--wechat); }
-
-        /* ======== 弹窗样式 (10种支付渠道) ======== */
-        .modal-overlay {
-            display: none; 
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); 
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: var(--card-bg);
-            width: 90%;
-            max-width: 500px; /* 加宽以容纳更多按钮 */
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            text-align: center;
-            border: 1px solid #333;
-            animation: popIn 0.3s ease-out;
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .modal-content h2 { font-size: 20px; margin-bottom: 10px; color: var(--text-main); }
-        .modal-content p { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
-        
-        /* 支付渠道网格布局 */
-        .pay-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .pay-channel-btn {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            transition: transform 0.1s, filter 0.2s;
-        }
-        .pay-channel-btn:hover { filter: brightness(1.2); transform: scale(1.02); }
-        .pay-channel-btn:active { transform: scale(0.98); }
-
-        /* 各种支付渠道颜色 */
-        .bg-wechat { background-color: var(--wechat); }
-        .bg-alipay { background-color: var(--alipay); }
-        .bg-qq { background-color: var(--qq); }
-        .bg-union { background-color: var(--union); }
-        .bg-orange { background-color: #ff7f50; }
-        .bg-purple { background-color: #8a2be2; }
-        .bg-pink { background-color: #ff69b4; }
-        .bg-blue { background-color: #1e90ff; }
-        .bg-dark { background-color: #555; }
-        
-        .close-btn {
-            background: transparent;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 10px;
-        }
-        .close-btn:hover { color: #fff; }
-
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .product-info { border-right: none; border-bottom: 1px solid #333; padding: 20px; }
-            .purchase-panel { width: 100%; padding: 20px; }
-            .pay-grid { grid-template-columns: 1fr; } /* 手机端改为单列 */
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 科技感背景网格 -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
 
-<div class="container">
-    <!-- 左侧：商品介绍 -->
-    <div class="product-info">
-        <h1>幽灵客户端 (Ghost Client)</h1>
-        <div class="version">v2.4.1 稳定版</div>
-        <p>专为 Minecraft Java 版打造的高级外挂插件。极低特征，稳定绕过主流反作弊系统，助你登顶巅峰。</p>
-        <ul class="feature-list">
-            <li>硬件级虚拟化防封</li>
-            <li>毫秒级响应，无延迟</li>
-            <li>内置 50+ 实用战斗与视觉模块</li>
-            <li>支持 Win10 / Win11 系统</li>
-        </ul>
-    </div>
+    <div class="container">
+        <!-- 左侧：商品展示区 -->
+        <div class="product-info">
+            <div class="tag-row">
+                <div class="version">v2.4.1 稳定版</div>
+                <div class="hot-tag">🔥 限时特惠</div>
+            </div>
+            <h1>幽灵客户端 (Ghost Client)</h1>
+            <p>专为 Minecraft Java 版打造的高级外挂插件。极低特征，稳定绕过主流反作弊系统，助你登顶巅峰。</p>
+            
+            <ul class="feature-list">
+                <li>硬件级虚拟化防封，安全无忧</li>
+                <li>毫秒级响应，无延迟丝滑体验</li>
+                <li>内置 50+ 实用战斗与视觉模块</li>
+                <li>支持 Win10 / Win11 全系统</li>
+            </ul>
 
-    <!-- 右侧：购买选项 -->
-    <div class="purchase-panel">
-        <div class="price" id="displayPrice">¥ 30<span> / 月</span></div>
-        
-        <div class="options">
-            <label>选择授权时长：</label>
-            <div class="btn-group">
-                <button class="active" onclick="selectPlan('month', 30, this)">1个月</button>
-                <button onclick="selectPlan('season', 80, this)">3个月</button>
-                <button onclick="selectPlan('year', 298, this)">永久</button>
+            <!-- 增加销量和保障标识 -->
+            <div class="trust-badges">
+                <span>🛡️ 官方正版</span>
+                <span>⚡ 自动发货</span>
+                <span>💬 售后保障</span>
             </div>
         </div>
 
-        <!-- 立即支付：拉起QQ群 + 弹出10种支付渠道 -->
-        <button class="buy-btn" onclick="openPaymentModal()">立即支付</button>
-        
-        <!-- 底部快速支付：直接拉起App + 下载 -->
-        <div class="quick-pay-methods">
-            <button class="quick-pay-btn quick-alipay" onclick="quickPay('alipays://platformapi/startapp')">支付宝支付</button>
-            <button class="quick-pay-btn quick-wechat" onclick="quickPay('weixin://')">微信支付</button>
-        </div>
-    </div>
-</div>
-
-<!-- ======== 弹窗：10种支付渠道 ======== -->
-<div class="modal-overlay" id="payModal">
-    <div class="modal-content">
-        <h2>订单确认</h2>
-        <p>请选择您的支付方式完成付款<br>付款后将自动发放插件并开始下载</p>
-        
-        <div class="pay-grid">
-            <!-- 通过 onclick 传入不同的 Scheme 来尝试拉起不同的 App -->
-            <button class="pay-channel-btn bg-wechat" onclick="triggerDownload('weixin://')">微信支付</button>
-            <button class="pay-channel-btn bg-alipay" onclick="triggerDownload('alipays://platformapi/startapp')">支付宝支付</button>
-            <button class="pay-channel-btn bg-qq" onclick="triggerDownload('mqq://')">QQ 钱包</button>
-            <button class="pay-channel-btn bg-union" onclick="triggerDownload('uppay://')">云闪付</button>
-            <button class="pay-channel-btn bg-orange" onclick="triggerDownload('taobao://')">淘宝支付</button>
-            <button class="pay-channel-btn bg-pink" onclick="triggerDownload('bilibili://')">B站支付</button>
-            <button class="pay-channel-btn bg-blue" onclick="triggerDownload('alipays://platformapi/startapp')">花呗分期</button>
-            <button class="pay-channel-btn bg-purple" onclick="triggerDownload('alipays://platformapi/startapp')">信用卡支付</button>
-            <button class="pay-channel-btn bg-dark" onclick="triggerDownload('')">数字人民币</button>
-            <button class="pay-channel-btn bg-dark" onclick="triggerDownload('')">网银转账</button>
-        </div>
-        
-        <button class="close-btn" onclick="closeModal()">取消支付</button>
-    </div>
-</div>
-
-<script>
-    // 切换套餐逻辑
-    function selectPlan(planType, price, btnElement) {
-        const buttons = document.querySelectorAll('.btn-group button');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        btnElement.classList.add('active');
-
-        const priceDisplay = document.getElementById('displayPrice');
-        let suffix = planType === 'year' ? '' : ' / 月';
-        if(planType === 'season') suffix = ' / 季';
-        if(planType === 'year') suffix = ' / 永久';
-        
-        priceDisplay.innerHTML = `¥ ${price}<span>${suffix}</span>`;
-    }
-
-    // 你的永久下载链接
-    const downloadUrl = 'https://github.com/xingmo2026/xingmo2026.github.io/releases/latest/download/nb.jar';
-
-    // 核心下载函数
-    function startDownload() {
-        const downloadLink = document.createElement('a');
-        downloadLink.href = downloadUrl;
-        downloadLink.setAttribute('download', 'nb.jar'); 
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    }
-
-    // 1. 点击“立即支付”：拉起QQ + 弹窗
-    function openPaymentModal() {
-        const qqGroupNumber = '142592996';
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        // 尝试拉起 QQ
-        if (isMobile) {
-            window.location.href = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qqGroupNumber}&card_type=group&source=qrcode`;
-        } else {
-            window.open(`https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`, '_blank');
-        }
-
-        // 延迟弹窗，防止被拉起QQ的动作打断
-        setTimeout(() => {
-            document.getElementById('payModal').style.display = 'flex';
-        }, 300);
-    }
-
-    // 2. 弹窗内的 10 种渠道点击逻辑：拉起App + 下载
-    function triggerDownload(schemeUrl) {
-        const modalContent = document.querySelector('.modal-content');
-        const originalHTML = modalContent.innerHTML;
-        
-        // 改变弹窗文字，让用户以为正在跳转
-        modalContent.innerHTML = `<h2>正在前往支付...</h2><p style="color:#aaa; margin-top:20px; font-size:16px;">插件下载已开始，请留意浏览器下载提示。</p>`;
-        
-        // 如果提供了 Scheme，尝试拉起 App
-        if (schemeUrl) {
-            // 使用 iframe 或 location 尝试拉起（有些浏览器限制 a 标签的 scheme 跳转）
-            window.location.href = schemeUrl;
-        }
-
-        // 无论是否拉起App，延迟 0.5 秒后强行触发下载
-        setTimeout(() => {
-            startDownload();
+        <!-- 右侧：购买结算区 -->
+        <div class="purchase-panel">
+            <div class="price-box">
+                <div class="old-price">原价: ¥ 59.00</div>
+                <div class="price" id="displayPrice">¥ 30<span> / 月</span></div>
+            </div>
             
-            // 1.5秒后关闭弹窗并恢复内容
-            setTimeout(() => {
-                closeModal();
-                setTimeout(() => { modalContent.innerHTML = originalHTML; }, 300);
-            }, 1500);
-        }, 500);
-    }
+            <div class="options">
+                <label>选择授权时长：</label>
+                <div class="btn-group">
+                    <button class="active" onclick="selectPlan('month', 30, this)">1个月</button>
+                    <button onclick="selectPlan('season', 80, this)">3个月</button>
+                    <button onclick="selectPlan('year', 298, this)">永久</button>
+                </div>
+            </div>
 
-    // 3. 底部的“支付宝/微信”快捷按钮逻辑：拉起App + 直接下载（不弹窗）
-    function quickPay(schemeUrl) {
-        // 尝试拉起 App
-        window.location.href = schemeUrl;
-        
-        // 延迟一下直接下载
-        setTimeout(() => {
-            startDownload();
-        }, 500);
-    }
+            <!-- 立即支付：拉起QQ群 + 弹出10种支付渠道 -->
+            <button class="buy-btn" onclick="openPaymentModal()">立即支付</button>
+            
+            <!-- 底部快速支付：跳转拉起 + 弹出下载按钮 -->
+            <div class="quick-pay-methods">
+                <button class="quick-pay-btn quick-alipay" onclick="handlePayProcess('支付宝', 'alipays://platformapi/startapp')">支付宝支付</button>
+                <button class="quick-pay-btn quick-wechat" onclick="handlePayProcess('微信', 'weixin://')">微信支付</button>
+            </div>
+        </div>
+    </div>
 
-    // 关闭弹窗
-    function closeModal() {
-        document.getElementById('payModal').style.display = 'none';
-    }
-</script>
+    <!-- ======== 弹窗：支付渠道与下载 ======== -->
+    <div class="modal-overlay" id="payModal">
+        <div class="modal-content" id="modalContent">
+            <!-- 内容将通过 JS 动态渲染 -->
+        </div>
+    </div>
 
+    <script src="script.js"></script>
 </body>
-</html>
+</html>:root {
+    --bg-color: #0f1115; /* 更高级的深灰色背景 */
+    --card-bg: #1a1d24;
+    --primary: #ff4757;
+    --text-main: #ffffff;
+    --text-sub: #8b92a5;
+    --alipay: #1677ff;
+    --wechat: #07c160;
+    --qq: #12b7f5;
+    --union: #e60012;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+body { 
+    background-color: var(--bg-color); 
+    color: var(--text-main); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ======== 高级背景特效 ======== */
+.bg-grid {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    z-index: -2;
+}
+.bg-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255, 71, 87, 0.15) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ======== 卡片容器 ======== */
+.container {
+    background-color: var(--card-bg);
+    width: 100%;
+    max-width: 850px;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    z-index: 1;
+}
+
+/* 左侧商品信息 */
+.product-info {
+    padding: 45px;
+    flex: 1.2;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+}
+.tag-row { display: flex; gap: 10px; margin-bottom: 15px; }
+.version { color: var(--primary); font-size: 12px; display: inline-block; background: rgba(255, 71, 87, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255, 71, 87, 0.3); }
+.hot-tag { color: #ff9f43; font-size: 12px; display: inline-block; background: rgba(255, 159, 67, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255, 159, 67, 0.3); }
+.product-info h1 { font-size: 32px; margin-bottom: 15px; letter-spacing: 1px; }
+.product-info p { color: var(--text-sub); line-height: 1.7; margin-bottom: 25px; font-size: 15px; }
+.feature-list { list-style: none; margin-bottom: 35px; }
+.feature-list li { margin-bottom: 12px; color: #c4c9d6; font-size: 15px; }
+.feature-list li::before { content: '✓'; color: #2ed573; margin-right: 12px; font-weight: bold; font-size: 16px; }
+
+/* 信任标识 */
+.trust-badges {
+    display: flex; gap: 15px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1);
+    font-size: 13px; color: var(--text-sub);
+}
+
+/* 右侧购买面板 */
+.purchase-panel {
+    padding: 45px 35px;
+    width: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #15181e;
+}
+
+.price-box { text-align: center; margin-bottom: 25px; }
+.old-price { color: #666; text-decoration: line-through; font-size: 14px; margin-bottom: 5px; }
+.price { font-size: 42px; font-weight: bold; color: var(--primary); text-shadow: 0 4px 15px rgba(255, 71, 87, 0.3); }
+.price span { font-size: 16px; color: var(--text-sub); font-weight: normal; text-shadow: none; }
+
+.options { margin-bottom: 25px; }
+.options label { display: block; margin-bottom: 12px; color: var(--text-sub); font-size: 14px; }
+.btn-group { display: flex; gap: 10px; }
+.btn-group button {
+    flex: 1; padding: 12px 0; background: transparent; border: 1px solid #333; color: var(--text-sub);
+    border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 14px;
+}
+.btn-group button:hover { border-color: #555; }
+.btn-group button.active { background: rgba(255, 71, 87, 0.1); border-color: var(--primary); color: var(--primary); box-shadow: 0 0 15px rgba(255, 71, 87, 0.2); }
+
+.buy-btn {
+    width: 100%; padding: 16px; background: linear-gradient(90deg, #ff4757, #ff6b81);
+    color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold;
+    cursor: pointer; transition: all 0.3s; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+}
+.buy-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6); }
+
+/* 底部快速支付按钮 */
+.quick-pay-methods { display: flex; gap: 10px; }
+.quick-pay-btn {
+    flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px;
+    font-weight: bold; color: white; cursor: pointer; transition: opacity 0.3s;
+}
+.quick-pay-btn:hover { opacity: 0.8; }
+.quick-alipay { background-color: var(--alipay); }
+.quick-wechat { background-color: var(--wechat); }
+
+/* ======== 弹窗样式 ======== */
+.modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); z-index: 999; justify-content: center; align-items: center;
+    backdrop-filter: blur(5px);
+}
+.modal-content {
+    background: var(--card-bg); width: 90%; max-width: 500px; padding: 35px;
+    border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); text-align: center;
+    border: 1px solid rgba(255,255,255,0.1); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    min-height: 250px; display: flex; flex-direction: column; justify-content: center;
+}
+@keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.modal-content h2 { font-size: 24px; margin-bottom: 10px; color: var(--text-main); }
+.modal-content p { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; line-height: 1.6; }
+
+/* 支付渠道网格 */
+.pay-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px; }
+.pay-channel-btn {
+    padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; color: white;
+    cursor: pointer; transition: transform 0.1s, filter 0.2s;
+}
+.pay-channel-btn:hover { filter: brightness(1.2); transform: scale(1.02); }
+.pay-channel-btn:active { transform: scale(0.98); }
+
+.bg-wechat { background-color: var(--wechat); }
+.bg-alipay { background-color: var(--alipay); }
+.bg-qq { background-color: var(--qq); }
+.bg-union { background-color: var(--union); }
+.bg-orange { background-color: #ff7f50; }
+.bg-purple { background-color: #8a2be2; }
+.bg-pink { background-color: #ff69b4; }
+.bg-blue { background-color: #1e90ff; }
+.bg-dark { background-color: #444; }
+
+.close-btn { background: transparent; border: none; color: #666; cursor: pointer; font-size: 14px; padding: 10px; transition: color 0.3s; }
+.close-btn:hover { color: #fff; }
+
+/* 下载按钮 */
+.download-action-btn {
+    display: inline-block; width: 100%; padding: 16px; background: linear-gradient(90deg, #2ed573, #26b863);
+    color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold;
+    cursor: pointer; text-decoration: none; transition: all 0.3s; margin-top: 10px; box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+}
+.download-action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 213, 115, 0.5); }
+
+/* ======== 加载动画 ======== */
+.loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; }
+.spinner {
+    width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.1);
+    border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.loading-text { color: var(--text-sub); font-size: 15px; margin-bottom: 10px; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .container { flex-direction: column; max-width: 400px; }
+    .product-info { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 30px 20px; }
+    .purchase-panel { width: 100%; padding: 30px 20px; }
+    .pay-grid { grid-template-columns: 1fr; } 
+}// 你的永久下载链接
+const downloadUrl = 'https://github.com/xingmo2026/xingmo2026.github.io/releases/latest/download/nb.jar';
+
+// 用于存储加载动画的定时器
+let loadingTimers = [];
+
+// 切换套餐逻辑
+function selectPlan(planType, price, btnElement) {
+    const buttons = document.querySelectorAll('.btn-group button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+
+    const priceDisplay = document.getElementById('displayPrice');
+    let suffix = planType === 'year' ? '' : ' / 月';
+    if(planType === 'season') suffix = ' / 季';
+    if(planType === 'year') suffix = ' / 永久';
+    
+    priceDisplay.innerHTML = `¥ ${price}<span>${suffix}</span>`;
+}
+
+// 核心逻辑 1：点击“立即支付”（拉起QQ + 弹窗）
+function openPaymentModal() {
+    const qqGroupNumber = '142592996';
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    // 尝试拉起 QQ 群
+    if (isMobile) {
+        window.location.href = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qqGroupNumber}&card_type=group&source=qrcode`;
+    } else {
+        window.open(`https://jq.qq.com/?_wv=1027&k=${qqGroupNumber}`, '_blank');
+    }
+
+    // 生成 10 种支付渠道
+    const gridHTML = `
+        <h2>订单确认</h2>
+        <p>请选择您的支付方式完成付款<br>付款后将自动发放插件</p>
+        <div class="pay-grid">
+            <button class="pay-channel-btn bg-wechat" onclick="handlePayProcess('微信', 'weixin://')">微信支付</button>
+            <button class="pay-channel-btn bg-alipay" onclick="handlePayProcess('支付宝', 'alipays://platformapi/startapp')">支付宝</button>
+            <button class="pay-channel-btn bg-qq" onclick="handlePayProcess('QQ', 'mqq://')">QQ 钱包</button>
+            <button class="pay-channel-btn bg-union" onclick="handlePayProcess('云闪付', 'uppay://')">云闪付</button>
+            <button class="pay-channel-btn bg-orange" onclick="handlePayProcess('淘宝', 'taobao://')">淘宝支付</button>
+            <button class="pay-channel-btn bg-pink" onclick="handlePayProcess('B站', 'bilibili://')">B站支付</button>
+            <button class="pay-channel-btn bg-blue" onclick="handlePayProcess('花呗', 'alipays://platformapi/startapp')">花呗分期</button>
+            <button class="pay-channel-btn bg-purple" onclick="handlePayProcess('信用卡', 'alipays://platformapi/startapp')">信用卡</button>
+            <button class="pay-channel-btn bg-dark" onclick="handlePayProcess('数字人民币', '')">数字人民币</button>
+            <button class="pay-channel-btn bg-dark" onclick="handlePayProcess('网银', '')">网银转账</button>
+        </div>
+        <button class="close-btn" onclick="closeModal()">取消支付</button>
+    `;
+    
+    document.getElementById('modalContent').innerHTML = gridHTML;
+    setTimeout(() => {
+        document.getElementById('payModal').style.display = 'flex';
+    }, 300);
+}
+
+// 核心逻辑 2：处理支付与3秒加载动画
+function handlePayProcess(channelName, schemeUrl) {
+    loadingTimers.forEach(timer => clearTimeout(timer));
+    loadingTimers = [];
+
+    document.getElementById('payModal').style.display = 'flex';
+    
+    // 1. 立即渲染加载界面
+    document.getElementById('modalContent').innerHTML = `
+        <div class="loader-container">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">正在拉起${channelName}...</div>
+            <p style="font-size: 12px; color: #666; margin-top: 10px;">请勿关闭此页面</p>
+        </div>
+    `;
+
+    // 2. 尝试拉起 App
+    if (schemeUrl) {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = schemeUrl;
+        document.body.appendChild(iframe);
+        setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+    }
+
+    // 3. 模拟加载过程（3秒）
+    loadingTimers.push(setTimeout(() => {
+        const textEl = document.getElementById('loadingText');
+        if(textEl) textEl.innerText = "正在连接支付网关...";
+    }, 1000));
+
+    loadingTimers.push(setTimeout(() => {
+        const textEl = document.getElementById('loadingText');
+        if(textEl) textEl.innerText = "支付成功，正在生成下载链接...";
+    }, 2000));
+
+    loadingTimers.push(setTimeout(() => {
+        renderDownloadPage();
+    }, 3000));
+}
+
+// 渲染最终下载界面
+function renderDownloadPage() {
+    const downloadHTML = `
+        <h2 style="color: #2ed573;">支付处理完成</h2>
+        <p>感谢您的购买！<br>请点击下方按钮下载您的插件。</p>
+        <a href="${downloadUrl}" download="nb.jar" class="download-action-btn">点击下载插件 (nb.jar)</a>
+        <br>
+        <button class="close-btn" style="margin-top: 15px;" onclick="closeModal()">关闭页面</button>
+    `;
+    document.getElementById('modalContent').innerHTML = downloadHTML;
+}
+
+// 关闭弹窗
+function closeModal() {
+    document.getElementById('payModal').style.display = 'none';
+    loadingTimers.forEach(timer => clearTimeout(timer));
+    loadingTimers = [];
+}
